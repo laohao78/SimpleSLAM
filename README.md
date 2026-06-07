@@ -119,6 +119,28 @@ cmake --build build -j
 cd build && ctest --output-on-failure
 ```
 
+### 运行 LO Demo
+
+```bash
+# 不需要数据集：跑合成点云，观察 LoIcpOdometry 输出位姿
+./build/demo/run_lo_demo --synthetic --max-frames 20 \
+    --output-prefix KITTI/results/lo_demo_synthetic
+
+# 有 KITTI odometry sequence 时：传入包含 velodyne/ 的序列目录
+./build/demo/run_lo_demo --kitti ./KITTI/dataset/sequences/00 --max-frames 100 --output-prefix KITTI/results/kitti00_lo
+
+# 快速体验版：抽点并减少 ICP 迭代，适合先看轨迹是否跑通
+./build/demo/run_lo_demo --kitti ./KITTI/dataset/sequences/00 \
+    --max-frames 100 --point-stride 5 --max-points 8000 \
+    --max-iterations 6 --downsample-voxel 1.5 --map-voxel 1.5 \
+    --output-prefix KITTI/results/kitti00_lo_fast
+```
+
+Demo 会逐帧打印 `timestamp/status/raw_points/used_points/tx/ty/tz`，并导出：
+
+- `*.kitti.txt`：KITTI 轨迹格式
+- `*.tum.txt`：TUM 轨迹格式
+
 ## 目录结构
 
 ```

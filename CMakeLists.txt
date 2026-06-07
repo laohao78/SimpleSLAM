@@ -57,6 +57,7 @@ add_subdirectory(adapters)
 add_subdirectory(backend)
 add_subdirectory(odometry)
 add_subdirectory(runner)
+add_subdirectory(demo)
 
 # ── 测试（默认开启）──
 option(BUILD_TESTING "构建单元测试" ON)

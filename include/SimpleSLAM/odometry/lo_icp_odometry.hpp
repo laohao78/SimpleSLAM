@@ -44,7 +44,11 @@ public:
         if (target_.empty()) {
             target_.update(scan, pose);
             last_pose_ = pose;
-            return OdometryResult{scan.timestamp, pose, {}, TrackingStatus::Initializing};
+            OdometryResult res;
+            res.timestamp = scan.timestamp;
+            res.pose = pose;
+            res.status = TrackingStatus::Initializing;
+            return res;
         }
 
         // ICP 迭代：match → solve → 左更新位姿 → 收敛检查
@@ -54,7 +58,7 @@ public:
             if (result_.num_valid < 6) break;
 
             auto dx = solver_.solveOneStep(result_);
-            pose = SE3d::Exp(dx) * pose;
+            pose = SE3d::Tangent(dx).exp() * pose;
 
             if (dx.norm() < solver_.config().convergence_threshold) break;
         }
@@ -89,8 +93,8 @@ public:
 
     void reset() override {
         target_.clear();
-        last_pose_ = SE3d{};
-        delta_ = SE3d{};
+        last_pose_ = SE3d::Identity();
+        delta_ = SE3d::Identity();
         kf_selector_.reset();
         next_kf_id_ = 0;
     }
@@ -105,8 +109,8 @@ private:
     IcpSolver solver_;
     KeyframeSelector kf_selector_;
 
-    SE3d last_pose_{};
-    SE3d delta_{};
+    SE3d last_pose_{SE3d::Identity()};
+    SE3d delta_{SE3d::Identity()};
     MatchResult result_;     ///< 复用缓冲区，避免每帧堆分配
     uint64_t next_kf_id_{0};
 };

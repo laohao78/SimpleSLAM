@@ -22,6 +22,10 @@ CMakeFiles/
 # 日志与运行时输出
 logs/
 
+# 本地数据集与实验输出
+KITTI/dataset/
+KITTI/results/
+
 # 内部文档（蓝图、调研报告等，不对外发布）
 docs/
 

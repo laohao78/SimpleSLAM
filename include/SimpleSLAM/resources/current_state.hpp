@@ -45,7 +45,7 @@ public:
 
     [[nodiscard]] SE3d readCorrection() const {
         std::lock_guard lock(correction_mutex_);
-        return correction_ ? *correction_ : SE3d{};
+        return correction_ ? *correction_ : SE3d::Identity();
     }
 
     // ── 最终校正后位姿 ──

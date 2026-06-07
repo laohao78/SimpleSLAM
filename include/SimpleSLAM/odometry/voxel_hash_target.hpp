@@ -40,10 +40,7 @@ public:
         : config_(config)
         , max_range_sq_(config.max_range * config.max_range)
         , max_corr_sq_(config.max_correspondence_dist
-                       * config.max_correspondence_dist)
-        // 同一体素内点的最小间距²，保证体素内点近似均匀分布
-        , min_dist_sq_(static_cast<double>(config.voxel_size * config.voxel_size)
-                       / config.max_points_per_voxel) {}
+                       * config.max_correspondence_dist) {}
 
     // ── RegistrationTarget concept 要求的四个方法 ──
 
@@ -119,9 +116,8 @@ public:
 
     /// 将当前帧的点变换到世界坐标系后插入地图
     ///
-    /// 防重叠策略：
+    /// 容量限制策略：
     ///   - 桶满（>= max_points_per_voxel）→ 跳过
-    ///   - 与桶内已有点距离 < min_dist → 跳过（信息增益不足）
     void update(const LidarScan& scan, const SE3d& pose) {
         auto R = pose.rotation();
         auto t = pose.translation();
@@ -144,15 +140,7 @@ public:
             if (static_cast<int>(bucket.size()) >= config_.max_points_per_voxel)
                 continue;
 
-            // 防重叠：新点与桶内已有点太近则跳过
-            bool too_close = false;
-            for (const auto& existing : bucket) {
-                if ((p_world - existing).squaredNorm() < min_dist_sq_) {
-                    too_close = true;
-                    break;
-                }
-            }
-            if (!too_close) bucket.push_back(p_world);
+            bucket.push_back(p_world);
         }
     }
 
@@ -224,7 +212,6 @@ private:
     VoxelHashTargetConfig config_;
     double max_range_sq_;   ///< max_range²，预计算避免热路径重复乘法
     double max_corr_sq_;    ///< max_correspondence_dist²
-    double min_dist_sq_;    ///< 同一体素内点的最小间距²
     /// 体素坐标 → 该体素内的地图点列表（核心数据结构）
     tsl::robin_map<VoxelCoord, std::vector<Eigen::Vector3d>, VoxelHash> map_;
 };
