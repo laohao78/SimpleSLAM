@@ -147,7 +147,7 @@ scripts/plot_trajectory.py
 MPLCONFIGDIR=/tmp/matplotlib-cache python3 scripts/plot_trajectory.py \
     KITTI/dataset/poses/00.txt \
     KITTI/results/kitti00_lo_fast.kitti.txt \
-    --out-prefix KITTI/results/kitti00_lo_se3 \
+    --out-prefix KITTI/results/kitti00_lo_fast_se3 \
     --align se3
 ```
 
